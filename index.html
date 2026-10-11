@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d3b30">
+<meta name="robots" content="noindex">
+<title>ثروتي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap">
+<style>
+/* Layout: one column ledger; net-worth "vault" header, then cards stacked, two columns on wide screens */
+/* Dark-only theme */
+:root{
+  --bg:#070b09; --surface:#0f1613; --surface-2:#141d19; --ink:#e8f1ec; --muted:#8a9c92; --line:#1f2b26;
+  --gain:#34d98a; --gain-soft:#0f2a1d; --loss:#ff6b57; --loss-soft:#2e1612;
+  --gold:#f0c45a; --gold-soft:#2a2310; --accent:#34d98a; --vault:#0b231b; --vault-ink:#eaf6ef;
+  --f-display:"Readex Pro","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Arabic","Readex Pro",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{background:radial-gradient(900px 500px at 85% -10%,rgba(52,217,138,.08),transparent 60%),var(--bg);background-attachment:fixed;color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;direction:rtl;min-height:100vh}
+.vault{background:linear-gradient(135deg,#0d2c22 0%,#0a1a14 60%,#0f1613 100%)!important;border:1px solid rgba(52,217,138,.18);box-shadow:0 10px 40px -12px rgba(52,217,138,.25)}
+.card{background:var(--surface);border-color:var(--line)}
+input,select,textarea{background:var(--surface-2)!important}
+.btn{color:#04140c!important}
+.btn.ghost{color:var(--accent)!important}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:16px;padding-block:16px 48px;display:grid;gap:16px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance}
+h2{font-size:1.05rem;font-weight:600}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.vault{background:var(--vault);color:var(--vault-ink);border-radius:20px;padding:22px;display:grid;gap:14px}
+.vault .lbl{font-size:.8rem;opacity:.75;letter-spacing:.02em}
+.big{font-family:var(--f-display);font-size:clamp(2rem,8vw,3.2rem);font-weight:700;line-height:1.1}
+.vrow{display:flex;flex-wrap:wrap;gap:10px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:.82rem;font-weight:600}
+.chip.g{background:rgba(60,207,134,.18);color:#7ff0b3}.chip.l{background:rgba(255,122,99,.18);color:#ffb3a5}.chip.n{background:rgba(255,255,255,.1)}
+.vstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.vstat{background:rgba(255,255,255,.07);border-radius:12px;padding:10px 12px}
+.vstat b{display:block;font-family:var(--f-display);font-size:1.15rem}
+.goalbar{height:10px;background:rgba(255,255,255,.12);border-radius:99px;overflow:hidden}
+.goalbar i{display:block;height:100%;background:linear-gradient(90deg,#3ccf86,#e3b54a);border-radius:99px}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:820px){.grid{grid-template-columns:1fr 1fr}.span2{grid-column:1/-1}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;gap:12px;min-width:0}
+.card-h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.muted{color:var(--muted);font-size:.85rem}
+form{display:grid;gap:10px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:grid;gap:4px;font-size:.8rem;color:var(--muted)}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px;width:100%;min-width:0}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.seg button{border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:8px;border-radius:10px;font:inherit;cursor:pointer}
+.seg button[aria-pressed="true"].in{background:var(--gain-soft);border-color:var(--gain);color:var(--gain);font-weight:600}
+.seg button[aria-pressed="true"].out{background:var(--loss-soft);border-color:var(--loss);color:var(--loss);font-weight:600}
+.seg button[aria-pressed="true"].inv{background:var(--gold-soft);border-color:var(--gold);color:var(--gold);font-weight:600}
+.btn{font:inherit;font-weight:600;border:0;border-radius:10px;padding:10px 14px;background:var(--accent);color:var(--surface);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
+.btn.sm{padding:6px 10px;font-size:.82rem}
+.btn:disabled{opacity:.5;cursor:default}
+.list{display:grid;gap:2px;max-height:360px;overflow:auto}
+.tx{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:8px 4px;border-bottom:1px solid var(--line)}
+.dot{width:10px;height:10px;border-radius:50%}
+.tx .t{min-width:0}.tx .t div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.amt-in{color:var(--gain);font-weight:600}.amt-out{color:var(--loss);font-weight:600}.amt-inv{color:var(--gold);font-weight:600}
+.x{background:none;border:0;color:var(--muted);cursor:pointer;font-size:1rem;padding:2px 6px}
+.badges{display:flex;flex-wrap:wrap;gap:8px}
+.badge{padding:6px 10px;border-radius:10px;border:1px dashed var(--line);color:var(--muted);font-size:.82rem}
+.badge.on{border-style:solid;border-color:var(--gold);background:var(--gold-soft);color:var(--ink)}
+.alert{padding:10px 12px;border-radius:10px;font-size:.88rem}
+.alert.w{background:var(--loss-soft);color:var(--loss)}.alert.ok{background:var(--gain-soft);color:var(--gain)}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{padding:7px 6px;text-align:start;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-weight:500;font-size:.78rem}
+.bars{display:grid;gap:8px}
+.barrow{display:grid;grid-template-columns:90px 1fr 80px;gap:8px;align-items:center;font-size:.85rem}
+.barrow .track{height:10px;background:var(--bg);border-radius:99px;overflow:hidden}
+.barrow .track i{display:block;height:100%;background:var(--loss);border-radius:99px}
+svg text{fill:var(--muted);font-size:11px;font-family:var(--f-body)}
+.ai-out{white-space:pre-wrap;background:var(--bg);border-radius:12px;padding:12px;font-size:.92rem;min-height:60px}
+.demo{background:var(--gold-soft);color:var(--ink);border:1px solid var(--gold);border-radius:12px;padding:10px 12px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:.88rem}
+.save{font-size:.75rem;opacity:.7}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+body{margin:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);-webkit-text-size-adjust:100%}
+.key-ok{color:var(--gain)}.key-no{color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div id="demoBar" class="demo" hidden>
+    <span>دي <b>بيانات تجريبية</b> علشان تشوف شكل التطبيق. امسحها وابدأ بأرقامك.</span>
+    <button class="btn sm" id="clearDemo">امسح وابدأ ببياناتي</button>
+  </div>
+
+  <section class="vault" aria-label="إجمالي الثروة">
+    <div class="card-h" style="color:inherit">
+      <div class="lbl">إجمالي ثروتي (كاش + قيمة الأسهم)</div>
+      <span class="save" id="saveState">—</span>
+    </div>
+    <div class="big num" id="netWorth">0</div>
+    <div class="vrow" id="nwChips"></div>
+    <div class="vstats">
+      <div class="vstat"><span class="lbl">الكاش</span><b class="num" id="cash">0</b></div>
+      <div class="vstat"><span class="lbl">محفظة البورصة</span><b class="num" id="port">0</b></div>
+      <div class="vstat"><span class="lbl">دخل الشهر</span><b class="num" id="mIn">0</b></div>
+      <div class="vstat"><span class="lbl">مصروف الشهر</span><b class="num" id="mOut">0</b></div>
+      <div class="vstat"><span class="lbl">نسبة الادخار</span><b class="num" id="sRate">0%</b></div>
+    </div>
+    <div style="display:grid;gap:6px">
+      <div class="card-h" style="color:inherit"><span class="lbl" id="goalLbl">الهدف</span><span class="lbl num" id="goalPct">0%</span></div>
+      <div class="goalbar"><i id="goalFill" style="width:0"></i></div>
+    </div>
+  </section>
+
+  <div class="grid">
+    <section class="card">
+      <h2>سجّل حركة</h2>
+      <form id="txForm">
+        <div class="seg" role="group" aria-label="نوع الحركة">
+          <button type="button" class="in" data-k="in" aria-pressed="true">دخل</button>
+          <button type="button" class="out" data-k="out" aria-pressed="false">مصروف</button>
+          <button type="button" class="inv" data-k="inv" aria-pressed="false">تحويل للبورصة</button>
+        </div>
+        <div class="fr">
+          <label>المبلغ (ج.م)<input id="fAmt" type="number" inputmode="decimal" min="0" step="any" required placeholder="0"></label>
+          <label>التاريخ<input id="fDate" type="date" required></label>
+        </div>
+        <label>البند<select id="fCat"></select></label>
+        <label>ملاحظة<input id="fNote" type="text" placeholder="اختياري"></label>
+        <button class="btn" type="submit">إضافة</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="card-h"><h2>عمولة الصيدلية</h2><span class="muted">بتنزل كل ~٤ أيام</span></div>
+      <div id="commBox"></div>
+      <div class="vstats" style="grid-template-columns:repeat(3,1fr)">
+        <div><div class="muted">آخر دفعة</div><b class="num" id="cLast">—</b></div>
+        <div><div class="muted">متوسط الدفعة</div><b class="num" id="cAvg">—</b></div>
+        <div><div class="muted">الشهر ده</div><b class="num" id="cMonth">—</b></div>
+      </div>
+      <h3 style="font-size:.9rem">إنجازاتك</h3>
+      <div class="badges" id="badges"></div>
+    </section>
+
+    <section class="card span2">
+      <div class="card-h"><h2>الدخل مقابل المصروف — آخر ٦ شهور</h2><span class="muted">أخضر دخل، أحمر مصروف</span></div>
+      <div class="tbl-wrap"><svg id="chart" viewBox="0 0 640 210" width="100%" height="210" role="img" aria-label="رسم الدخل والمصروف"></svg></div>
+    </section>
+
+    <section class="card">
+      <h2>مصادر الدخل الشهر ده</h2>
+      <div class="bars" id="srcBars"></div>
+      <h2 style="margin-top:6px">أكبر مصاريفك الشهر ده</h2>
+      <div class="bars" id="expBars"></div>
+    </section>
+
+    <section class="card">
+      <div class="card-h"><h2>آخر الحركات</h2><select id="fltr" style="width:auto"><option value="all">الكل</option><option value="in">دخل</option><option value="out">مصروف</option><option value="inv">بورصة</option></select></div>
+      <div class="list" id="txList"></div>
+    </section>
+
+    <section class="card span2">
+      <div class="card-h"><h2>محفظة البورصة المصرية</h2><span class="muted">حدّث سعر السهم بإيدك من Thndr</span></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>السهم</th><th>الكمية</th><th>متوسط الشراء</th><th>السعر الحالي</th><th>القيمة</th><th>ربح/خسارة</th><th></th></tr></thead>
+        <tbody id="hBody"></tbody>
+      </table></div>
+      <form id="hForm" class="fr" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));align-items:end">
+        <label>كود السهم<input id="hT" required placeholder="COMI"></label>
+        <label>الكمية<input id="hQ" type="number" min="0" step="any" required></label>
+        <label>متوسط الشراء<input id="hC" type="number" min="0" step="any" required></label>
+        <label>السعر الحالي<input id="hP" type="number" min="0" step="any" required></label>
+        <button class="btn" type="submit">إضافة / تحديث</button>
+      </form>
+    </section>
+
+    <section class="card span2">
+      <div class="card-h"><h2>المستشار الذكي</h2><span class="muted">بيقرا أرقامك ويقولك فين نقط الضعف</span></div>
+      <div class="vrow">
+        <button class="btn" id="aiFull">حلّل وضعي المالي</button>
+        <button class="btn ghost" id="aiWeek">خطة الأسبوع الجاي</button>
+      </div>
+      <div class="fr" style="grid-template-columns:1fr auto">
+        <input id="aiQ" placeholder="اسأل عن فلوسك… مثلاً: أقدر أحول كام للبورصة الشهر ده؟">
+        <button class="btn ghost" id="aiAsk">اسأل</button>
+      </div>
+      <div class="ai-out" id="aiOut">اضغط "حلّل وضعي المالي" وهيقولك فين بتصرف زيادة ونسبة ادخارك ونصايح للعمولة والبورصة.</div>
+    </section>
+
+    <section class="card span2">
+      <div class="card-h"><h2>الإعدادات</h2></div>
+      <form id="setForm" class="fr" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));align-items:end">
+        <label>هدف الثروة (ج.م)<input id="sGoal" type="number" min="0" step="any"></label>
+        <label>اسم الهدف<input id="sGoalName" placeholder="مثلاً: مصاريف الماستر"></label>
+        <label>رصيد كاش افتتاحي<input id="sOpen" type="number" step="any"></label>
+        <button class="btn" type="submit">حفظ</button>
+      </form>
+      <div class="vrow">
+        <button class="btn ghost sm" id="dlBtn">تنزيل نسخة احتياطية</button>
+        <label class="btn ghost sm" style="display:inline-block;cursor:pointer">رفع نسخة احتياطية<input id="upFile" type="file" accept=".json,application/json" hidden></label>
+        <button class="btn ghost sm" id="expBtn">نسخ JSON</button>
+        <button class="btn ghost sm" id="impBtn">لصق JSON</button>
+      </div>
+      <textarea id="ioBox" rows="3" hidden placeholder="الصق هنا نسخة JSON واضغط «لصق JSON» تاني"></textarea>
+      <p class="muted" style="margin:0">بياناتك بتتحفظ على المتصفح ده بس. نزّل نسخة احتياطية كل أسبوع، واستخدمها لو عايز تنقل على موبايل أو جهاز تاني.</p>
+    </section>
+
+    <section class="card span2">
+      <div class="card-h"><h2>ربط الذكاء الاصطناعي</h2><span class="muted" id="keyState">—</span></div>
+      <form id="aiForm" class="fr" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));align-items:end">
+        <label>المزوّد<select id="aiProv">
+          <option value="anthropic">Claude (Anthropic)</option>
+          <option value="gemini">Gemini (Google)</option>
+          <option value="openai">ChatGPT (OpenAI)</option>
+        </select></label>
+        <label>API Key<input id="aiKey" type="password" autocomplete="off" placeholder="الصق المفتاح هنا"></label>
+        <label>الموديل<input id="aiModel" placeholder=""></label>
+        <button class="btn" type="submit">حفظ المفتاح</button>
+      </form>
+      <p class="muted" style="margin:0">المفتاح بيتحفظ على جهازك بس ومش بيترفع على GitHub. متكتبوش في أي ملف في الريبو.</p>
+    </section>
+  </div>
+</div>
+
+<script>
+const CATS={
+  in:["عمولة الصيدلية","أرباح البورصة","تسويق بالعمولة","MantaAlam","دخل آخر"],
+  out:["أكل وشرب","مواصلات","سكن وفواتير","موبايل ونت","تعليم وكورسات","لبس","خروج","التزامات عائلية","مصروف آخر"],
+  inv:["تحويل لـ Thndr"]
+};
+const COL={in:"var(--gain)",out:"var(--loss)",inv:"var(--gold)"};
+const fmt=n=>(Math.round(n)).toLocaleString("ar-EG")+" ج.م";
+const today=()=>new Date().toISOString().slice(0,10);
+const ym=d=>d.slice(0,7);
+const uid=()=>Math.random().toString(36).slice(2,10);
+
+function demoState(){
+  const t=[];const base=new Date();
+  const d=o=>{const x=new Date(base);x.setDate(x.getDate()-o);return x.toISOString().slice(0,10)};
+  for(let o=2;o<170;o+=4)t.push({id:uid(),k:"in",cat:"عمولة الصيدلية",amt:900+((o*37)%600),date:d(o),note:""});
+  for(let o=5;o<170;o+=3)t.push({id:uid(),k:"out",cat:["أكل وشرب","مواصلات","خروج","موبايل ونت","لبس"][o%5],amt:120+((o*53)%450),date:d(o),note:""});
+  for(let o=10;o<170;o+=30){t.push({id:uid(),k:"out",cat:"سكن وفواتير",amt:2500,date:d(o),note:""});t.push({id:uid(),k:"inv",cat:"تحويل لـ Thndr",amt:3000,date:d(o+1),note:""});}
+  t.push({id:uid(),k:"in",cat:"تسويق بالعمولة",amt:750,date:d(8),note:"أول عمولة"});
+  return{demo:true,tx:t,hold:[{id:uid(),t:"COMI",q:120,c:78,p:84.5},{id:uid(),t:"TMGH",q:200,c:41,p:38.2}],goal:250000,goalName:"مصاريف الماستر",open:5000};
+}
+let S=demoState();
+
+/* ---------- persistence: localStorage on this device ---------- */
+const $=id=>document.getElementById(id);
+function setSave(t){$("saveState").textContent=t}
+function localLoad(){try{const r=localStorage.getItem("tharwati");return r?JSON.parse(r):null}catch(e){return null}}
+function persist(){
+  try{localStorage.setItem("tharwati",JSON.stringify(S));setSave("محفوظ ✓ "+new Date().toLocaleTimeString("ar-EG",{hour:"2-digit",minute:"2-digit"}))}
+  catch(e){setSave("الحفظ مش شغال — نزّل نسخة احتياطية")}
+}
+function boot(){const l=localLoad();if(l&&Array.isArray(l.tx))S=l;render();setSave(l?"محفوظ على الجهاز ده":"بيانات تجريبية");loadAI()}
+if("storage" in navigator&&navigator.storage.persist){navigator.storage.persist().catch(()=>{})}
+
+/* ---------- calculations ---------- */
+function calc(){
+  const tx=S.tx,m=ym(today());
+  let cash=+S.open||0,inv=0;
+  for(const t of tx){if(t.k==="in")cash+=t.amt;else{cash-=t.amt;if(t.k==="inv")inv+=t.amt}}
+  const port=S.hold.reduce((a,h)=>a+h.q*h.p,0),cost=S.hold.reduce((a,h)=>a+h.q*h.c,0);
+  const mIn=tx.filter(t=>t.k==="in"&&ym(t.date)===m).reduce((a,t)=>a+t.amt,0);
+  const mOut=tx.filter(t=>t.k==="out"&&ym(t.date)===m).reduce((a,t)=>a+t.amt,0);
+  const months=[];const now=new Date();
+  for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);const k=d.toISOString().slice(0,7);
+    months.push({k,label:d.toLocaleDateString("ar-EG",{month:"short"}),
+      inc:tx.filter(t=>t.k==="in"&&ym(t.date)===k).reduce((a,t)=>a+t.amt,0),
+      out:tx.filter(t=>t.k==="out"&&ym(t.date)===k).reduce((a,t)=>a+t.amt,0)})}
+  // net worth last month end (approx: cash at end of last month + current portfolio)
+  const lastEnd=months[4].k;let cashPrev=+S.open||0;
+  for(const t of tx)if(ym(t.date)<=lastEnd)cashPrev+=t.k==="in"?t.amt:-t.amt;
+  const nw=cash+port,nwPrev=cashPrev+port;
+  const comm=tx.filter(t=>t.k==="in"&&t.cat==="عمولة الصيدلية").sort((a,b)=>b.date.localeCompare(a.date));
+  return{cash,port,cost,inv,nw,nwPrev,mIn,mOut,months,comm,sRate:mIn?((mIn-mOut)/mIn):0};
+}
+
+/* ---------- render ---------- */
+function bars(el,map,color){
+  const e=Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,5),mx=e[0]?.[1]||1;
+  el.innerHTML=e.length?e.map(([k,v])=>`<div class="barrow"><span>${k}</span><span class="track"><i style="width:${v/mx*100}%;background:${color}"></i></span><span class="num">${fmt(v)}</span></div>`).join(""):`<div class="muted">لسه مفيش حركات الشهر ده.</div>`;
+}
+function render(){
+  const c=calc(),m=ym(today());
+  $("demoBar").hidden=!S.demo;
+  $("netWorth").textContent=fmt(c.nw);$("netWorth").style.color=c.nw>=0?"#7ff0b3":"#ffb3a5";
+  $("cash").textContent=fmt(c.cash);$("port").textContent=fmt(c.port);
+  $("mIn").textContent=fmt(c.mIn);$("mIn").style.color="#7ff0b3";
+  $("mOut").textContent=fmt(c.mOut);$("mOut").style.color="#ffb3a5";
+  $("sRate").textContent=Math.round(c.sRate*100)+"%";
+  const diff=c.nw-c.nwPrev,pl=c.port-c.cost;
+  $("nwChips").innerHTML=
+    `<span class="chip ${diff>=0?"g":"l"}">${diff>=0?"▲":"▼"} ${fmt(Math.abs(diff))} عن الشهر اللي فات</span>`+
+    `<span class="chip ${pl>=0?"g":"l"}">البورصة ${pl>=0?"+":"−"}${fmt(Math.abs(pl))}</span>`+
+    `<span class="chip n">${c.sRate>=.3?"ادخار ممتاز":c.sRate>=.15?"ادخار كويس":"الادخار محتاج شغل"}</span>`;
+  const g=+S.goal||0,pct=g?Math.max(0,Math.min(100,c.nw/g*100)):0;
+  $("goalLbl").textContent=g?`الهدف: ${S.goalName||"هدف الثروة"} — ${fmt(g)}`:"حدد هدف ثروة من الإعدادات";
+  $("goalPct").textContent=pct.toFixed(1)+"%";$("goalFill").style.width=pct+"%";
+
+  // commission
+  const cm=c.comm;
+  if(cm.length){
+    const days=Math.floor((new Date(today())-new Date(cm[0].date))/864e5);
+    $("commBox").innerHTML=days>5?`<div class="alert w">آخر عمولة من ${days} أيام — المفروض كل ٤ أيام. اسأل صاحب الشغل.</div>`:`<div class="alert ok">آخر عمولة من ${days} يوم. الدفعة الجاية متوقعة خلال ${Math.max(0,4-days)} يوم.</div>`;
+    $("cLast").textContent=fmt(cm[0].amt);
+    const r=cm.slice(0,10);$("cAvg").textContent=fmt(r.reduce((a,t)=>a+t.amt,0)/r.length);
+    $("cMonth").textContent=fmt(cm.filter(t=>ym(t.date)===m).reduce((a,t)=>a+t.amt,0));
+  }else{$("commBox").innerHTML=`<div class="muted">سجّل أول دفعة عمولة وهتابعلك المواعيد.</div>`;["cLast","cAvg","cMonth"].forEach(i=>$(i).textContent="—")}
+
+  // badges
+  const srcs=new Set(S.tx.filter(t=>t.k==="in").map(t=>t.cat));
+  const B=[
+    ["أول ١٠ حركات",S.tx.length>=10],["ادخار ٢٠٪+ الشهر ده",c.sRate>=.2],["مستثمر في البورصة",S.hold.length>0],
+    ["٣ مصادر دخل",srcs.size>=3],["أول ١٠٠ ألف",c.nw>=1e5],["نص الهدف",pct>=50],["محفظة كسبانة",pl>0]];
+  $("badges").innerHTML=B.map(([n,on])=>`<span class="badge ${on?"on":""}">${on?"★ ":""}${n}</span>`).join("");
+
+  // chart
+  const W=640,H=210,pad=34,mx=Math.max(1,...c.months.flatMap(x=>[x.inc,x.out])),bw=(W-pad*2)/6;
+  const y=v=>H-24-(v/mx)*(H-46);
+  let s="";
+  for(let i=0;i<=3;i++){const v=mx*i/3,yy=y(v);s+=`<line x1="${pad}" x2="${W-8}" y1="${yy}" y2="${yy}" stroke="var(--line)"/><text x="${pad-4}" y="${yy+4}" text-anchor="end">${Math.round(v/1000)}k</text>`}
+  c.months.forEach((mo,i)=>{const x0=W-8-(i+1)*bw+bw*.18,w=bw*.3;
+    s+=`<rect x="${x0}" y="${y(mo.inc)}" width="${w}" height="${H-24-y(mo.inc)}" rx="3" fill="var(--gain)"/>`;
+    s+=`<rect x="${x0+w+3}" y="${y(mo.out)}" width="${w}" height="${H-24-y(mo.out)}" rx="3" fill="var(--loss)"/>`;
+    s+=`<text x="${x0+w}" y="${H-6}" text-anchor="middle">${mo.label}</text>`});
+  $("chart").innerHTML=s;
+
+  // bars
+  const si={},eo={};
+  S.tx.filter(t=>ym(t.date)===m).forEach(t=>{if(t.k==="in")si[t.cat]=(si[t.cat]||0)+t.amt;if(t.k==="out")eo[t.cat]=(eo[t.cat]||0)+t.amt});
+  bars($("srcBars"),si,"var(--gain)");bars($("expBars"),eo,"var(--loss)");
+
+  // list
+  const f=$("fltr").value;
+  const L=S.tx.filter(t=>f==="all"||t.k===f).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,60);
+  $("txList").innerHTML=L.length?L.map(t=>`<div class="tx"><span class="dot" style="background:${COL[t.k]}"></span><div class="t"><div>${t.cat}${t.note?" · "+esc(t.note):""}</div><div class="muted num">${t.date}</div></div><span class="num amt-${t.k}">${t.k==="in"?"+":"−"}${fmt(t.amt)}</span><button class="x" data-del="${t.id}" aria-label="حذف">✕</button></div>`).join(""):`<div class="muted">مفيش حركات.</div>`;
+
+  // holdings
+  $("hBody").innerHTML=S.hold.length?S.hold.map(h=>{const v=h.q*h.p,p=v-h.q*h.c,pp=h.c?(h.p/h.c-1)*100:0;
+    return`<tr><td><b>${esc(h.t)}</b></td><td class="num">${h.q}</td><td class="num">${h.c}</td><td><input class="num" style="width:90px;padding:4px 6px" type="number" step="any" value="${h.p}" data-price="${h.id}" aria-label="سعر ${esc(h.t)}"></td><td class="num">${fmt(v)}</td><td class="num ${p>=0?"amt-in":"amt-out"}">${p>=0?"+":"−"}${fmt(Math.abs(p))} (${pp.toFixed(1)}%)</td><td><button class="x" data-hdel="${h.id}" aria-label="حذف">✕</button></td></tr>`}).join("")
+    :`<tr><td colspan="7" class="muted">ضيف أسهمك من تحت.</td></tr>`;
+
+  $("sGoal").value=S.goal||"";$("sGoalName").value=S.goalName||"";$("sOpen").value=S.open||"";
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function leaveDemo(){if(S.demo){S={demo:false,tx:[],hold:[],goal:S.goal,goalName:S.goalName,open:0}}}
+
+/* ---------- events ---------- */
+let kind="in";
+function fillCats(){$("fCat").innerHTML=CATS[kind].map(c=>`<option>${c}</option>`).join("")}
+document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{kind=b.dataset.k;document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x===b));fillCats()});
+fillCats();$("fDate").value=today();
+$("txForm").addEventListener("submit",e=>{e.preventDefault();const a=parseFloat($("fAmt").value);if(!(a>0))return;
+  leaveDemo();S.tx.push({id:uid(),k:kind,cat:$("fCat").value,amt:a,date:$("fDate").value||today(),note:$("fNote").value.trim()});
+  $("fAmt").value="";$("fNote").value="";persist();render()});
+$("txList").onclick=e=>{const id=e.target.dataset.del;if(id){S.tx=S.tx.filter(t=>t.id!==id);persist();render()}};
+$("fltr").onchange=render;
+$("hForm").addEventListener("submit",e=>{e.preventDefault();leaveDemo();const t=$("hT").value.trim().toUpperCase();
+  const h={t,q:+$("hQ").value,c:+$("hC").value,p:+$("hP").value};const ex=S.hold.find(x=>x.t===t);
+  if(ex)Object.assign(ex,h);else S.hold.push({id:uid(),...h});e.target.reset();persist();render()});
+$("hBody").addEventListener("change",e=>{const id=e.target.dataset.price;if(id){const h=S.hold.find(x=>x.id===id);h.p=+e.target.value;persist();render()}});
+$("hBody").addEventListener("click",e=>{const id=e.target.dataset.hdel;if(id){S.hold=S.hold.filter(h=>h.id!==id);persist();render()}});
+$("setForm").addEventListener("submit",e=>{e.preventDefault();S.goal=+$("sGoal").value||0;S.goalName=$("sGoalName").value.trim();S.open=+$("sOpen").value||0;persist();render()});
+let armed=false;
+$("clearDemo").onclick=()=>{if(!armed){armed=true;$("clearDemo").textContent="متأكد؟ اضغط تاني";return}
+  S={demo:false,tx:[],hold:[],goal:0,goalName:"",open:0};armed=false;$("clearDemo").textContent="امسح وابدأ ببياناتي";persist();render()};
+$("expBtn").onclick=async()=>{const j=JSON.stringify(S);$("ioBox").hidden=false;$("ioBox").value=j;
+  try{await navigator.clipboard.writeText(j);$("expBtn").textContent="اتنسخ ✓"}catch(e){$("ioBox").select()}};
+$("dlBtn").onclick=()=>{const b=new Blob([JSON.stringify(S,null,1)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="tharwati-backup-"+today()+".json";
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000)};
+$("upFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const o=JSON.parse(r.result);if(!Array.isArray(o.tx)||!Array.isArray(o.hold))throw 0;S=o;S.demo=false;persist();render();setSave("اتسترجعت النسخة ✓")}
+    catch(x){setSave("الملف ده مش نسخة من ثروتي")}};r.readAsText(f);e.target.value=""};
+$("impBtn").onclick=()=>{const box=$("ioBox");if(box.hidden||!box.value.trim().startsWith("{")){box.hidden=false;box.value="";box.focus();return}
+  try{const o=JSON.parse(box.value);if(Array.isArray(o.tx)&&Array.isArray(o.hold)){S=o;S.demo=false;persist();render();box.hidden=true;$("impBtn").textContent="اتسترجع ✓"}}catch(e){$("impBtn").textContent="الملف مش سليم"}};
+
+/* ---------- AI ---------- */
+function summary(){
+  const c=calc(),m=ym(today()),eo={},si={};
+  S.tx.filter(t=>ym(t.date)===m).forEach(t=>{if(t.k==="out")eo[t.cat]=(eo[t.cat]||0)+t.amt;if(t.k==="in")si[t.cat]=(si[t.cat]||0)+t.amt});
+  return JSON.stringify({التاريخ:today(),صافي_الثروة:Math.round(c.nw),الكاش:Math.round(c.cash),قيمة_المحفظة:Math.round(c.port),تكلفة_المحفظة:Math.round(c.cost),
+    دخل_الشهر:c.mIn,مصروف_الشهر:c.mOut,نسبة_الادخار:Math.round(c.sRate*100)+"%",مصادر_الدخل_الشهر:si,مصاريف_الشهر:eo,
+    آخر_6_شهور:c.months.map(x=>({شهر:x.k,دخل:x.inc,مصروف:x.out})),
+    الأسهم:S.hold.map(h=>({سهم:h.t,كمية:h.q,متوسط:h.c,سعر:h.p})),
+    عمولات_الصيدلية_الأخيرة:c.comm.slice(0,8).map(t=>({تاريخ:t.date,مبلغ:t.amt})),الهدف:{اسم:S.goalName,مبلغ:S.goal}});
+}
+const SYS=`أنت مستشار مالي شخصي لريمون، شاب مصري في مرسى علم. دخله الأساسي عمولة من شغله في صيدلية بتنزل كل حوالي ٤ أيام، وبيستثمر في أسهم البورصة المصرية عن طريق Thndr، وناوي يبدأ تسويق بالعمولة. اكتب بالعامية المصرية، مختصر ومباشر، بنقط قصيرة، وبأرقام محددة من البيانات. متقولش توصية شراء أو بيع لسهم معين بشكل قاطع؛ اتكلم عن التوزيع والمخاطر. البيانات بالجنيه المصري:\n`;
+const DEF_MODEL={anthropic:"claude-sonnet-5-5",gemini:"gemini-2.5-flash",openai:"gpt-4.1-mini"};
+let AI={prov:"anthropic",key:"",model:""};
+function loadAI(){try{const a=JSON.parse(localStorage.getItem("tharwati_ai")||"null");if(a)AI=a}catch(e){}
+  $("aiProv").value=AI.prov;$("aiKey").value=AI.key;$("aiModel").value=AI.model;$("aiModel").placeholder=DEF_MODEL[AI.prov];showKey()}
+function showKey(){$("keyState").innerHTML=AI.key?`<span class="key-ok">متوصل ✓ ${$("aiProv").selectedOptions[0].text}</span>`:`<span class="key-no">مفيش مفتاح لسه</span>`}
+$("aiProv").onchange=()=>{$("aiModel").placeholder=DEF_MODEL[$("aiProv").value]};
+$("aiForm").addEventListener("submit",e=>{e.preventDefault();
+  AI={prov:$("aiProv").value,key:$("aiKey").value.trim(),model:$("aiModel").value.trim()};
+  try{localStorage.setItem("tharwati_ai",JSON.stringify(AI))}catch(x){}showKey()});
+
+async function callAI(system,user){
+  const model=AI.model||DEF_MODEL[AI.prov];let r,j;
+  if(AI.prov==="anthropic"){
+    r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":AI.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model,max_tokens:1500,system,messages:[{role:"user",content:user}]})});
+    j=await r.json();if(!r.ok)throw new Error(j?.error?.message||r.status);
+    return j.content.filter(c=>c.type==="text").map(c=>c.text).join("");
+  }
+  if(AI.prov==="gemini"){
+    r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(AI.key)}`,{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:"user",parts:[{text:user}]}]})});
+    j=await r.json();if(!r.ok)throw new Error(j?.error?.message||r.status);
+    return (j.candidates?.[0]?.content?.parts||[]).map(p=>p.text||"").join("");
+  }
+  r=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",headers:{"content-type":"application/json","authorization":"Bearer "+AI.key},
+    body:JSON.stringify({model,messages:[{role:"system",content:system},{role:"user",content:user}]})});
+  j=await r.json();if(!r.ok)throw new Error(j?.error?.message||r.status);
+  return j.choices[0].message.content;
+}
+async function ask(task){
+  const out=$("aiOut");
+  if(!AI.key){out.textContent="حط الـ API Key الأول في قسم «ربط الذكاء الاصطناعي» تحت.";$("aiKey").focus();return}
+  out.textContent="بيفكر…";
+  document.querySelectorAll("#aiFull,#aiWeek,#aiAsk").forEach(b=>b.disabled=true);
+  try{out.textContent=await callAI(SYS,"البيانات:\n"+summary()+"\n\nالمطلوب: "+task)}
+  catch(e){out.textContent="حصلت مشكلة: "+(e?.message||e)+"\nاتأكد إن المفتاح صح، وإن اسم الموديل مكتوب صح، وإن في رصيد في حسابك."}
+  finally{document.querySelectorAll("#aiFull,#aiWeek,#aiAsk").forEach(b=>b.disabled=false)}
+}
+$("aiFull").onclick=()=>ask("حلل وضعي المالي: ١) أقوى ٣ نقط ٢) أضعف ٣ نقط ومين البنود اللي بصرف فيها زيادة ٣) تقييم نسبة الادخار ٤) ملاحظة على انتظام العمولة ٥) ملاحظة على توزيع المحفظة ونسبتها من الثروة ٦) ٣ خطوات عملية للشهر ده.");
+$("aiWeek").onclick=()=>ask("اعملي خطة للأسبوع الجاي: سقف مصروف يومي بالجنيه، كام أحوش من العمولات الجاية، كام أحول للبورصة، وخطوة واحدة أبدأ بيها التسويق بالعمولة.");
+$("aiAsk").onclick=()=>{const q=$("aiQ").value.trim();if(q)ask(q)};
+$("aiQ").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("aiAsk").click()}});
+
+boot();
+</script>
+</body>
+</html>
