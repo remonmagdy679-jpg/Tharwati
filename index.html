@@ -9,40 +9,44 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap">
 <style>
-/* Layout: one column ledger; net-worth "vault" header, then cards stacked, two columns on wide screens */
-/* Dark-only theme */
+/* Theme tokens are set per palette by JS (THEMES); defaults = GitHub Dark */
 :root{
-  --bg:#070b09; --surface:#0f1613; --surface-2:#141d19; --ink:#e8f1ec; --muted:#8a9c92; --line:#1f2b26;
-  --gain:#34d98a; --gain-soft:#0f2a1d; --loss:#ff6b57; --loss-soft:#2e1612;
-  --gold:#f0c45a; --gold-soft:#2a2310; --accent:#34d98a; --vault:#0b231b; --vault-ink:#eaf6ef;
+  --bg:#0d1117; --surface:#161b22; --surface-2:#1c2128; --line:#30363d; --ink:#e6edf3; --muted:#8b949e;
+  --accent:#2f81f7; --on-accent:#ffffff; --gain:#3fb950; --loss:#f85149; --gold:#d29922;
   --f-display:"Readex Pro","IBM Plex Sans Arabic",system-ui,sans-serif;
   --f-body:"IBM Plex Sans Arabic","Readex Pro",system-ui,sans-serif;
   color-scheme:dark;
 }
+:root{
+  --gain-soft:color-mix(in srgb,var(--gain) 14%,transparent);
+  --loss-soft:color-mix(in srgb,var(--loss) 14%,transparent);
+  --gold-soft:color-mix(in srgb,var(--gold) 14%,transparent);
+  --accent-soft:color-mix(in srgb,var(--accent) 16%,transparent);
+}
 *{box-sizing:border-box}
 html{background:var(--bg)}
-body{background:radial-gradient(900px 500px at 85% -10%,rgba(52,217,138,.08),transparent 60%),var(--bg);background-attachment:fixed;color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;direction:rtl;min-height:100vh}
-.vault{background:linear-gradient(135deg,#0d2c22 0%,#0a1a14 60%,#0f1613 100%)!important;border:1px solid rgba(52,217,138,.18);box-shadow:0 10px 40px -12px rgba(52,217,138,.25)}
-.card{background:var(--surface);border-color:var(--line)}
-input,select,textarea{background:var(--surface-2)!important}
-.btn{color:#04140c!important}
-.btn.ghost{color:var(--accent)!important}
+body{margin:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);-webkit-text-size-adjust:100%;
+  background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;direction:rtl;min-height:100vh;transition:background .25s}
 ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
 .wrap{max-width:1040px;margin:0 auto;padding-inline:16px;padding-block:16px 48px;display:grid;gap:16px}
 h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance}
 h2{font-size:1.05rem;font-weight:600}
-.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
-.vault{background:var(--vault);color:var(--vault-ink);border-radius:20px;padding:22px;display:grid;gap:14px}
-.vault .lbl{font-size:.8rem;opacity:.75;letter-spacing:.02em}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum";direction:ltr;unicode-bidi:isolate}
+.vault{background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 22%,var(--surface)) 0%,var(--surface) 70%);
+  border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));box-shadow:0 12px 40px -16px color-mix(in srgb,var(--accent) 45%,transparent);
+  color:var(--ink);border-radius:20px;padding:22px;display:grid;gap:14px}
+.vault .lbl{font-size:.8rem;color:var(--muted);letter-spacing:.02em}
 .big{font-family:var(--f-display);font-size:clamp(2rem,8vw,3.2rem);font-weight:700;line-height:1.1}
+.big.pos{color:var(--gain)}.big.neg{color:var(--loss)}
 .vrow{display:flex;flex-wrap:wrap;gap:10px}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:.82rem;font-weight:600}
-.chip.g{background:rgba(60,207,134,.18);color:#7ff0b3}.chip.l{background:rgba(255,122,99,.18);color:#ffb3a5}.chip.n{background:rgba(255,255,255,.1)}
+.chip.g{background:var(--gain-soft);color:var(--gain)}.chip.l{background:var(--loss-soft);color:var(--loss)}.chip.n{background:var(--accent-soft);color:var(--ink)}
 .vstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
-.vstat{background:rgba(255,255,255,.07);border-radius:12px;padding:10px 12px}
+.vstat{background:color-mix(in srgb,var(--bg) 55%,transparent);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .vstat b{display:block;font-family:var(--f-display);font-size:1.15rem}
-.goalbar{height:10px;background:rgba(255,255,255,.12);border-radius:99px;overflow:hidden}
-.goalbar i{display:block;height:100%;background:linear-gradient(90deg,#3ccf86,#e3b54a);border-radius:99px}
+.vstat b.pos{color:var(--gain)}.vstat b.neg{color:var(--loss)}
+.goalbar{height:10px;background:var(--line);border-radius:99px;overflow:hidden}
+.goalbar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--gain));border-radius:99px;transition:width .4s}
 .grid{display:grid;grid-template-columns:1fr;gap:16px}
 @media (min-width:820px){.grid{grid-template-columns:1fr 1fr}.span2{grid-column:1/-1}}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;gap:12px;min-width:0}
@@ -51,14 +55,15 @@ h2{font-size:1.05rem;font-weight:600}
 form{display:grid;gap:10px}
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 label{display:grid;gap:4px;font-size:.8rem;color:var(--muted)}
-input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px;width:100%;min-width:0}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:9px 10px;width:100%;min-width:0}
+input[type=number],input[type=date]{direction:ltr;text-align:right}
 input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.seg button{border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:8px;border-radius:10px;font:inherit;cursor:pointer}
+.seg button{border:1px solid var(--line);background:var(--surface-2);color:var(--ink);padding:8px;border-radius:10px;font:inherit;cursor:pointer}
 .seg button[aria-pressed="true"].in{background:var(--gain-soft);border-color:var(--gain);color:var(--gain);font-weight:600}
 .seg button[aria-pressed="true"].out{background:var(--loss-soft);border-color:var(--loss);color:var(--loss);font-weight:600}
 .seg button[aria-pressed="true"].inv{background:var(--gold-soft);border-color:var(--gold);color:var(--gold);font-weight:600}
-.btn{font:inherit;font-weight:600;border:0;border-radius:10px;padding:10px 14px;background:var(--accent);color:var(--surface);cursor:pointer}
+.btn{font:inherit;font-weight:600;border:0;border-radius:10px;padding:10px 14px;background:var(--accent);color:var(--on-accent);cursor:pointer}
 .btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
 .btn.sm{padding:6px 10px;font-size:.82rem}
 .btn:disabled{opacity:.5;cursor:default}
@@ -78,16 +83,23 @@ table{width:100%;border-collapse:collapse;font-size:.88rem}
 th,td{padding:7px 6px;text-align:start;border-bottom:1px solid var(--line);white-space:nowrap}
 th{color:var(--muted);font-weight:500;font-size:.78rem}
 .bars{display:grid;gap:8px}
-.barrow{display:grid;grid-template-columns:90px 1fr 80px;gap:8px;align-items:center;font-size:.85rem}
-.barrow .track{height:10px;background:var(--bg);border-radius:99px;overflow:hidden}
-.barrow .track i{display:block;height:100%;background:var(--loss);border-radius:99px}
+.barrow{display:grid;grid-template-columns:90px 1fr 90px;gap:8px;align-items:center;font-size:.85rem}
+.barrow .track{height:10px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.barrow .track i{display:block;height:100%;border-radius:99px}
 svg text{fill:var(--muted);font-size:11px;font-family:var(--f-body)}
-.ai-out{white-space:pre-wrap;background:var(--bg);border-radius:12px;padding:12px;font-size:.92rem;min-height:60px}
+.ai-out{white-space:pre-wrap;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:.92rem;min-height:60px}
 .demo{background:var(--gold-soft);color:var(--ink);border:1px solid var(--gold);border-radius:12px;padding:10px 12px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:.88rem}
-.save{font-size:.75rem;opacity:.7}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-body{margin:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);-webkit-text-size-adjust:100%}
+.save{font-size:.75rem;color:var(--muted)}
 .key-ok{color:var(--gain)}.key-no{color:var(--muted)}
+.themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.th{all:unset;cursor:pointer;border-radius:14px;padding:10px;display:grid;gap:8px;border:2px solid transparent;font-family:var(--f-body);font-size:.85rem}
+.th[aria-pressed="true"]{border-color:var(--accent)}
+.th:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.th .sw{display:flex;gap:4px}.th .sw i{flex:1;height:22px;border-radius:6px}
+.th .nm{display:flex;justify-content:space-between;align-items:center;font-weight:600}
+.th .nm small{font-weight:400;opacity:.7;font-size:.72rem}
+.icon-btn{all:unset;cursor:pointer;font-size:.78rem;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
@@ -101,7 +113,7 @@ body{margin:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-a
   <section class="vault" aria-label="إجمالي الثروة">
     <div class="card-h" style="color:inherit">
       <div class="lbl">إجمالي ثروتي (كاش + قيمة الأسهم)</div>
-      <span class="save" id="saveState">—</span>
+      <span style="display:flex;gap:8px;align-items:center"><span class="save" id="saveState">—</span><button class="icon-btn" id="goTheme" type="button">🎨 الألوان</button></span>
     </div>
     <div class="big num" id="netWorth">0</div>
     <div class="vrow" id="nwChips"></div>
@@ -138,7 +150,7 @@ body{margin:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-a
     </section>
 
     <section class="card">
-      <div class="card-h"><h2>عمولة الصيدلية</h2><span class="muted">بتنزل كل ~٤ أيام</span></div>
+      <div class="card-h"><h2>عمولة الصيدلية</h2><span class="muted">بتنزل كل ~4 أيام</span></div>
       <div id="commBox"></div>
       <div class="vstats" style="grid-template-columns:repeat(3,1fr)">
         <div><div class="muted">آخر دفعة</div><b class="num" id="cLast">—</b></div>
@@ -150,7 +162,7 @@ body{margin:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-a
     </section>
 
     <section class="card span2">
-      <div class="card-h"><h2>الدخل مقابل المصروف — آخر ٦ شهور</h2><span class="muted">أخضر دخل، أحمر مصروف</span></div>
+      <div class="card-h"><h2>الدخل مقابل المصروف — آخر 6 شهور</h2><span class="muted">أخضر دخل، أحمر مصروف</span></div>
       <div class="tbl-wrap"><svg id="chart" viewBox="0 0 640 210" width="100%" height="210" role="img" aria-label="رسم الدخل والمصروف"></svg></div>
     </section>
 
@@ -192,6 +204,11 @@ body{margin:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-a
         <button class="btn ghost" id="aiAsk">اسأل</button>
       </div>
       <div class="ai-out" id="aiOut">اضغط "حلّل وضعي المالي" وهيقولك فين بتصرف زيادة ونسبة ادخارك ونصايح للعمولة والبورصة.</div>
+    </section>
+
+    <section class="card span2" id="themeCard">
+      <div class="card-h"><h2>ألوان التطبيق</h2><span class="muted">اختار الثيم اللي يعجبك، وبيتحفظ على جهازك</span></div>
+      <div class="themes" id="themes"></div>
     </section>
 
     <section class="card span2">
@@ -236,7 +253,7 @@ const CATS={
   inv:["تحويل لـ Thndr"]
 };
 const COL={in:"var(--gain)",out:"var(--loss)",inv:"var(--gold)"};
-const fmt=n=>(Math.round(n)).toLocaleString("ar-EG")+" ج.م";
+const fmt=n=>(Math.round(n)).toLocaleString("en-US")+" ج.م";
 const today=()=>new Date().toISOString().slice(0,10);
 const ym=d=>d.slice(0,7);
 const uid=()=>Math.random().toString(36).slice(2,10);
@@ -257,7 +274,7 @@ const $=id=>document.getElementById(id);
 function setSave(t){$("saveState").textContent=t}
 function localLoad(){try{const r=localStorage.getItem("tharwati");return r?JSON.parse(r):null}catch(e){return null}}
 function persist(){
-  try{localStorage.setItem("tharwati",JSON.stringify(S));setSave("محفوظ ✓ "+new Date().toLocaleTimeString("ar-EG",{hour:"2-digit",minute:"2-digit"}))}
+  try{localStorage.setItem("tharwati",JSON.stringify(S));setSave("محفوظ ✓ "+new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"}))}
   catch(e){setSave("الحفظ مش شغال — نزّل نسخة احتياطية")}
 }
 function boot(){const l=localLoad();if(l&&Array.isArray(l.tx))S=l;render();setSave(l?"محفوظ على الجهاز ده":"بيانات تجريبية");loadAI()}
@@ -273,7 +290,7 @@ function calc(){
   const mOut=tx.filter(t=>t.k==="out"&&ym(t.date)===m).reduce((a,t)=>a+t.amt,0);
   const months=[];const now=new Date();
   for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);const k=d.toISOString().slice(0,7);
-    months.push({k,label:d.toLocaleDateString("ar-EG",{month:"short"}),
+    months.push({k,label:d.toLocaleDateString("en-US",{month:"short"}),
       inc:tx.filter(t=>t.k==="in"&&ym(t.date)===k).reduce((a,t)=>a+t.amt,0),
       out:tx.filter(t=>t.k==="out"&&ym(t.date)===k).reduce((a,t)=>a+t.amt,0)})}
   // net worth last month end (approx: cash at end of last month + current portfolio)
@@ -292,10 +309,10 @@ function bars(el,map,color){
 function render(){
   const c=calc(),m=ym(today());
   $("demoBar").hidden=!S.demo;
-  $("netWorth").textContent=fmt(c.nw);$("netWorth").style.color=c.nw>=0?"#7ff0b3":"#ffb3a5";
+  $("netWorth").textContent=fmt(c.nw);$("netWorth").className="big num "+(c.nw>=0?"pos":"neg");
   $("cash").textContent=fmt(c.cash);$("port").textContent=fmt(c.port);
-  $("mIn").textContent=fmt(c.mIn);$("mIn").style.color="#7ff0b3";
-  $("mOut").textContent=fmt(c.mOut);$("mOut").style.color="#ffb3a5";
+  $("mIn").textContent=fmt(c.mIn);$("mIn").className="num pos";
+  $("mOut").textContent=fmt(c.mOut);$("mOut").className="num neg";
   $("sRate").textContent=Math.round(c.sRate*100)+"%";
   const diff=c.nw-c.nwPrev,pl=c.port-c.cost;
   $("nwChips").innerHTML=
@@ -310,7 +327,7 @@ function render(){
   const cm=c.comm;
   if(cm.length){
     const days=Math.floor((new Date(today())-new Date(cm[0].date))/864e5);
-    $("commBox").innerHTML=days>5?`<div class="alert w">آخر عمولة من ${days} أيام — المفروض كل ٤ أيام. اسأل صاحب الشغل.</div>`:`<div class="alert ok">آخر عمولة من ${days} يوم. الدفعة الجاية متوقعة خلال ${Math.max(0,4-days)} يوم.</div>`;
+    $("commBox").innerHTML=days>5?`<div class="alert w">آخر عمولة من ${days} أيام — المفروض كل 4 أيام. اسأل صاحب الشغل.</div>`:`<div class="alert ok">آخر عمولة من ${days} يوم. الدفعة الجاية متوقعة خلال ${Math.max(0,4-days)} يوم.</div>`;
     $("cLast").textContent=fmt(cm[0].amt);
     const r=cm.slice(0,10);$("cAvg").textContent=fmt(r.reduce((a,t)=>a+t.amt,0)/r.length);
     $("cMonth").textContent=fmt(cm.filter(t=>ym(t.date)===m).reduce((a,t)=>a+t.amt,0));
@@ -319,8 +336,8 @@ function render(){
   // badges
   const srcs=new Set(S.tx.filter(t=>t.k==="in").map(t=>t.cat));
   const B=[
-    ["أول ١٠ حركات",S.tx.length>=10],["ادخار ٢٠٪+ الشهر ده",c.sRate>=.2],["مستثمر في البورصة",S.hold.length>0],
-    ["٣ مصادر دخل",srcs.size>=3],["أول ١٠٠ ألف",c.nw>=1e5],["نص الهدف",pct>=50],["محفظة كسبانة",pl>0]];
+    ["أول 10 حركات",S.tx.length>=10],["ادخار 20%+ الشهر ده",c.sRate>=.2],["مستثمر في البورصة",S.hold.length>0],
+    ["3 مصادر دخل",srcs.size>=3],["أول 100 ألف",c.nw>=1e5],["نص الهدف",pct>=50],["محفظة كسبانة",pl>0]];
   $("badges").innerHTML=B.map(([n,on])=>`<span class="badge ${on?"on":""}">${on?"★ ":""}${n}</span>`).join("");
 
   // chart
@@ -394,7 +411,7 @@ function summary(){
     الأسهم:S.hold.map(h=>({سهم:h.t,كمية:h.q,متوسط:h.c,سعر:h.p})),
     عمولات_الصيدلية_الأخيرة:c.comm.slice(0,8).map(t=>({تاريخ:t.date,مبلغ:t.amt})),الهدف:{اسم:S.goalName,مبلغ:S.goal}});
 }
-const SYS=`أنت مستشار مالي شخصي لريمون، شاب مصري في مرسى علم. دخله الأساسي عمولة من شغله في صيدلية بتنزل كل حوالي ٤ أيام، وبيستثمر في أسهم البورصة المصرية عن طريق Thndr، وناوي يبدأ تسويق بالعمولة. اكتب بالعامية المصرية، مختصر ومباشر، بنقط قصيرة، وبأرقام محددة من البيانات. متقولش توصية شراء أو بيع لسهم معين بشكل قاطع؛ اتكلم عن التوزيع والمخاطر. البيانات بالجنيه المصري:\n`;
+const SYS=`أنت مستشار مالي شخصي لريمون، شاب مصري في مرسى علم. دخله الأساسي عمولة من شغله في صيدلية بتنزل كل حوالي 4 أيام، وبيستثمر في أسهم البورصة المصرية عن طريق Thndr، وناوي يبدأ تسويق بالعمولة. اكتب بالعامية المصرية، مختصر ومباشر، بنقط قصيرة، وبأرقام محددة من البيانات. متقولش توصية شراء أو بيع لسهم معين بشكل قاطع؛ اتكلم عن التوزيع والمخاطر. البيانات بالجنيه المصري:\n`;
 const DEF_MODEL={anthropic:"claude-sonnet-5-5",gemini:"gemini-2.5-flash",openai:"gpt-4.1-mini"};
 let AI={prov:"anthropic",key:"",model:""};
 function loadAI(){try{const a=JSON.parse(localStorage.getItem("tharwati_ai")||"null");if(a)AI=a}catch(e){}
@@ -433,10 +450,38 @@ async function ask(task){
   catch(e){out.textContent="حصلت مشكلة: "+(e?.message||e)+"\nاتأكد إن المفتاح صح، وإن اسم الموديل مكتوب صح، وإن في رصيد في حسابك."}
   finally{document.querySelectorAll("#aiFull,#aiWeek,#aiAsk").forEach(b=>b.disabled=false)}
 }
-$("aiFull").onclick=()=>ask("حلل وضعي المالي: ١) أقوى ٣ نقط ٢) أضعف ٣ نقط ومين البنود اللي بصرف فيها زيادة ٣) تقييم نسبة الادخار ٤) ملاحظة على انتظام العمولة ٥) ملاحظة على توزيع المحفظة ونسبتها من الثروة ٦) ٣ خطوات عملية للشهر ده.");
+$("aiFull").onclick=()=>ask("حلل وضعي المالي: 1) أقوى 3 نقط 2) أضعف 3 نقط ومين البنود اللي بصرف فيها زيادة 3) تقييم نسبة الادخار 4) ملاحظة على انتظام العمولة 5) ملاحظة على توزيع المحفظة ونسبتها من الثروة 6) 3 خطوات عملية للشهر ده.");
 $("aiWeek").onclick=()=>ask("اعملي خطة للأسبوع الجاي: سقف مصروف يومي بالجنيه، كام أحوش من العمولات الجاية، كام أحول للبورصة، وخطوة واحدة أبدأ بيها التسويق بالعمولة.");
 $("aiAsk").onclick=()=>{const q=$("aiQ").value.trim();if(q)ask(q)};
 $("aiQ").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("aiAsk").click()}});
+
+/* ---------- themes ---------- */
+const THEMES={
+  github:{n:"GitHub Dark",d:"أزرق هادي",bg:"#0d1117",surface:"#161b22",s2:"#1c2128",line:"#30363d",ink:"#e6edf3",muted:"#8b949e",accent:"#2f81f7",on:"#ffffff",gain:"#3fb950",loss:"#f85149",gold:"#d29922"},
+  amoled:{n:"AMOLED Black",d:"أسود صافي",bg:"#000000",surface:"#0e0e10",s2:"#17171a",line:"#26262b",ink:"#fafafa",muted:"#a1a1aa",accent:"#8b5cf6",on:"#ffffff",gain:"#22c55e",loss:"#ef4444",gold:"#facc15"},
+  tokyo:{n:"Tokyo Night",d:"كحلي ونيون",bg:"#16161e",surface:"#1a1b26",s2:"#24283b",line:"#2f3549",ink:"#c0caf5",muted:"#7a82ab",accent:"#7aa2f7",on:"#16161e",gain:"#9ece6a",loss:"#f7768e",gold:"#e0af68"},
+  dracula:{n:"Dracula",d:"بنفسجي",bg:"#1e1f29",surface:"#282a36",s2:"#303241",line:"#44475a",ink:"#f8f8f2",muted:"#8b93c4",accent:"#bd93f9",on:"#1e1f29",gain:"#50fa7b",loss:"#ff5555",gold:"#f1fa8c"},
+  catppuccin:{n:"Catppuccin",d:"باستيل ناعم",bg:"#11111b",surface:"#1e1e2e",s2:"#313244",line:"#45475a",ink:"#cdd6f4",muted:"#a6adc8",accent:"#cba6f7",on:"#11111b",gain:"#a6e3a1",loss:"#f38ba8",gold:"#f9e2af"},
+  nord:{n:"Nord",d:"رمادي ثلجي",bg:"#242933",surface:"#2e3440",s2:"#3b4252",line:"#434c5e",ink:"#eceff4",muted:"#a3acbd",accent:"#88c0d0",on:"#242933",gain:"#a3be8c",loss:"#bf616a",gold:"#ebcb8b"},
+  onedark:{n:"One Dark",d:"رمادي دافي",bg:"#1e2127",surface:"#282c34",s2:"#2f343e",line:"#3e4451",ink:"#dcdfe4",muted:"#8a909b",accent:"#61afef",on:"#1e2127",gain:"#98c379",loss:"#e06c75",gold:"#e5c07b"},
+  gold:{n:"Black & Gold",d:"فخم",bg:"#0a0a0b",surface:"#141416",s2:"#1c1c1f",line:"#2b2a27",ink:"#f3efe6",muted:"#a19b8f",accent:"#d4af37",on:"#0a0a0b",gain:"#4ade80",loss:"#f87171",gold:"#d4af37"}
+};
+function applyTheme(k){
+  const t=THEMES[k]||THEMES.github,r=document.documentElement.style;
+  r.setProperty("--bg",t.bg);r.setProperty("--surface",t.surface);r.setProperty("--surface-2",t.s2);r.setProperty("--line",t.line);
+  r.setProperty("--ink",t.ink);r.setProperty("--muted",t.muted);r.setProperty("--accent",t.accent);r.setProperty("--on-accent",t.on);
+  r.setProperty("--gain",t.gain);r.setProperty("--loss",t.loss);r.setProperty("--gold",t.gold);
+  document.querySelector('meta[name="theme-color"]').content=t.bg;
+  try{localStorage.setItem("tharwati_theme",k)}catch(e){}
+  document.querySelectorAll(".th").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===k));
+}
+$("themes").innerHTML=Object.entries(THEMES).map(([k,t])=>`<button class="th" data-t="${k}" aria-pressed="false" style="background:${t.surface};color:${t.ink}">
+  <span class="sw"><i style="background:${t.bg};border:1px solid ${t.line}"></i><i style="background:${t.accent}"></i><i style="background:${t.gain}"></i><i style="background:${t.loss}"></i><i style="background:${t.gold}"></i></span>
+  <span class="nm">${t.n}<small>${t.d}</small></span></button>`).join("");
+$("themes").onclick=e=>{const b=e.target.closest(".th");if(b)applyTheme(b.dataset.t)};
+$("goTheme").onclick=()=>$("themeCard").scrollIntoView({behavior:"smooth",block:"start"});
+let savedTheme="github";try{savedTheme=localStorage.getItem("tharwati_theme")||"github"}catch(e){}
+applyTheme(savedTheme);
 
 boot();
 </script>
