@@ -1,10 +1,8 @@
-// الصق هنا الـ firebaseConfig من Firebase Console
-// Project settings ← Your apps ← Web app ← SDK setup and configuration ← Config
 window.FIREBASE_CONFIG = {
-  apiKey: "PASTE_YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "000000000000",
-  appId: "1:000000000000:web:xxxxxxxx"
+  apiKey: "AIzaSyD3_9I5o13GLIJMrlVfTJ8HDp2V2pJgtn8",
+  authDomain: "mafia-shop-d1fad.firebaseapp.com",
+  projectId: "mafia-shop-d1fad",
+  storageBucket: "mafia-shop-d1fad.firebasestorage.app",
+  messagingSenderId: "488960191408",
+  appId: "1:488960191408:web:157b6c12f6de60ba328475"
 };

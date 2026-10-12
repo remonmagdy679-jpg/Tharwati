@@ -24,6 +24,7 @@
   --accent-soft:color-mix(in srgb,var(--accent) 16%,transparent);
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html{background:var(--bg)}
 body{margin:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);-webkit-text-size-adjust:100%;
   background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;direction:rtl;min-height:100vh;transition:background .25s}
@@ -294,7 +295,8 @@ function persist(){
 function savePriv(){if(privRef)privRef.set({ai:AI,theme:curTheme},{merge:true}).catch(()=>{})}
 function initFirebase(){
   const cfg=window.FIREBASE_CONFIG;
-  if(!window.firebase||!cfg||!cfg.apiKey||cfg.apiKey.startsWith("PASTE")){return}
+  if(!window.firebase){setSave("مكتبة Firebase ماتحملتش — اتأكد من النت");return}
+  if(!cfg||!cfg.apiKey||String(cfg.apiKey).startsWith("PASTE")){setSave("Firebase مش متضبط — ارفع firebase-config.js بقيمك");$("authBtn").hidden=false;$("authBtn").dataset.err="cfg";return}
   try{firebase.initializeApp(cfg);FB={auth:firebase.auth(),db:firebase.firestore()}}catch(e){setSave("إعدادات Firebase غلط");return}
   $("authBtn").hidden=false;
   FB.auth.getRedirectResult().catch(e=>setSave("الدخول فشل: "+(e.code||"")));
@@ -526,7 +528,7 @@ $("themes").innerHTML=Object.entries(THEMES).map(([k,t])=>`<button class="th" da
   <span class="nm">${t.n}<small>${t.d}</small></span></button>`).join("");
 $("themes").onclick=e=>{const b=e.target.closest(".th");if(b)applyTheme(b.dataset.t)};
 $("authBtn").onclick=()=>{
-  if(!FB)return;
+  if(!FB){setSave(window.firebase?"Firebase مش متضبط — ارفع firebase-config.js بقيمك":"مكتبة Firebase ماتحملتش");return}
   if(fbUser){FB.auth.signOut();return}
   const prov=new firebase.auth.GoogleAuthProvider();
   FB.auth.signInWithPopup(prov).catch(e=>{
